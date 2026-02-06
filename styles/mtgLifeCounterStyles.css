@@ -1,0 +1,95 @@
+
+    :root {
+      --player1-color: #0033cc;
+      --player2-color: #cc0000;
+    dark-mode {
+      background-color: #111;
+      color: white;
+  }
+    .dark-mode .player1, .dark-mode .player2 {
+      background-color: #111;
+  }
+    #dark-mode-toggle {
+      position: absolute;
+      top: 48%;
+      right: -90px;
+      transform: translateY(-50%);
+      font-size: 30px;
+      padding: 25px 20px;
+      border: none;
+      border-radius: 10px 0 0 10px;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+      transform: rotate(90deg);
+  }
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    .player {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      touch-action: manipulation;
+    }
+    .player1 {
+      background-color: var(--player1-color);
+      color: white;
+    }
+    .player2 {
+      background-color: var(--player2-color);
+      color: white;
+      transform: rotate(180deg);
+    }
+    .name {
+      font-size: 40px;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    .life {
+      font-size: 300px;
+      margin: 20px 0;
+      user-select: none;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 50px;
+      flex-wrap: wrap;
+    }
+    .minus,.plus {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .reset {
+      margin-top: 20px;
+    }
+    button {
+      font-size: 60px;
+      padding: 30px 60px;
+      border: none;
+      border-radius: 12px;
+      background-color: #222;
+      color: white;
+      cursor: pointer;
+      min-width: 280px;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    button:hover {
+      background-color: #444;
+    }
+    button:active {
+      background-color: #666;
+    }
+  
