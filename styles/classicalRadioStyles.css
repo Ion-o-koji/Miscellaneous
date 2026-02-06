@@ -1,0 +1,84 @@
+
+    :root{
+      --bg: #B0CFDE;
+      --card: #ffffff;
+      --accent: #3498db;
+      --accent-cta: #4CAF50;
+      --text: #123;
+      --muted: #666;
+      --btn-bg: #2d89d3;
+      --btn-active: #1b6fb0;
+    }
+html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);}
+    .wrap{
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      box-sizing:border-box;
+    }
+    .card{
+      width:100%;
+      max-width:720px;
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.12);
+      padding:28px;
+      box-sizing:border-box;
+      text-align:center;
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size:1.4rem;
+      color:var(--accent);
+    }
+    p.version{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      font-size:0.95rem;
+    }
+    .stations {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-bottom:18px;
+    }
+    .station-btn {
+      flex:1 1 100%;
+      max-width:100%;
+      padding:10px 12px;
+      font-size:0.95rem;
+      color:#fff;
+      background:var(--btn-bg);
+      border:0;
+      border-radius:8px;
+      cursor:pointer;
+      transition:transform .06s ease, background .12s ease;
+    }
+ .station-btn:active{transform:translateY(1px);}
+    .station-btn[data-active="true"]{ background:var(--btn-active); box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    @media(min-width:640px){
+      .station-btn{ flex:1 1 auto; max-width:none; }
+      #load-audio-btn{ width:60% }
+    }
+    #audio{
+      width:100%;
+      max-width:100%;
+      outline:none;
+      border-radius:8px;
+      background:#000;
+      margin-top:6px;
+    }
+    .note{
+      margin-top:12px;
+      font-size:0.88rem;
+      color:#555;
+    }
+    .current {
+      margin-top:10px;
+      font-size:0.9rem;
+      color:var(--muted);
+    }
+  
