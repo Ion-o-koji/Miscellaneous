@@ -1,0 +1,85 @@
+
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+    :root {
+      --bg-deep: #0a0a0c;
+      --surface: #121214;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --text-dim: #94a3b8;
+    }
+
+    body {
+      background-color: var(--bg-deep);
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+    }
+
+    .glow-btn {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: all 0.3s ease;
+    }
+
+    .glow-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px var(--accent-glow);
+    }
+
+    .glow-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    .gradient-text {
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid #6366f1;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .gallery-item {
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .error-toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 100;
+      transform: translateY(150%);
+      transition: transform 0.3s ease;
+    }
+
+    .error-toast.show {
+      transform: translateY(0);
+    }
+
+  
