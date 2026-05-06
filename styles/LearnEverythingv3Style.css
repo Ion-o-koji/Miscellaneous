@@ -1,0 +1,302 @@
+
+      :root {
+        --bg: #0b1020;
+        --panel: #121a2f;
+        --panel-2: #0e1528;
+        --text: #e9eefb;
+        --muted: #9fb0d9;
+        --primary: #6ea8fe;
+        --accent: #7ef0c5;
+        --danger: #ff6b6b;
+        --warn: #ffd166;
+        --ok: #95d47b;
+        --shadow: 0 10px 25px rgba(0, 0, 0, .35);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background: linear-gradient(180deg, #0b0f1e 0%, #0a1330 100%);
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none
+      }
+
+      a:hover {
+        text-decoration: underline
+      }
+
+      header {
+        top: 0;
+        z-index: 50;
+        backdrop-filter: saturate(140%) blur(10px);
+        background: rgba(10, 18, 40, .65);
+        border-bottom: 1px solid rgba(255, 255, 255, .06)
+      }
+
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 18px
+      }
+
+      .resultBox {
+        max-height: 600px;
+        overflow-y: auto;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+        line-height: 1.6;
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center
+      }
+
+      .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: conic-gradient(from 180deg, var(--primary), var(--accent), #9d7bff, var(--primary));
+        box-shadow: 0 6px 18px rgba(110, 168, 254, .36)
+      }
+
+      .title {
+        font-weight: 800;
+        letter-spacing: .3px
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 16px;
+        padding: 18px;
+        max-width: 1200px;
+        margin: 0 auto
+      }
+
+      nav {
+        position: sticky;
+        top: 74px;
+        align-self: start;
+        background: var(--panel);
+        padding: 14px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, .06)
+      }
+
+      nav h3 {
+        margin: 8px 8px 12px;
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 600
+      }
+
+      .navbtn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+        cursor: pointer
+      }
+
+      .navbtn:hover {
+        background: var(--panel-2);
+        border-color: rgba(255, 255, 255, .06)
+      }
+
+      .navbtn.active {
+        background: linear-gradient(180deg, rgba(126, 240, 197, .08), rgba(110, 168, 254, .08));
+        border-color: rgba(255, 255, 255, .12)
+      }
+
+      main {
+        min-height: 60vh
+      }
+
+      section {
+        display: none
+      }
+
+      section.active {
+        display: block
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, .06);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: var(--shadow)
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px
+      }
+
+      .row-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel-2);
+        border: 1px solid rgba(255, 255, 255, .06);
+        padding: 6px 10px;
+        border-radius: 30px;
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        background: #0c142b;
+        border: 1px solid rgba(255, 255, 255, .12);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        outline: 0
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical
+      }
+
+      label {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: block
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        color: #091022;
+        font-weight: 700
+      }
+
+      .btn.primary {
+        background: var(--primary)
+      }
+
+      .btn.accent {
+        background: var(--accent)
+      }
+
+      .btn.ghost {
+        background: transparent;
+        color: var(--text);
+        border-color: rgba(255, 255, 255, .18)
+      }
+
+      .btn.warn {
+        background: var(--warn)
+      }
+
+      .btn.danger {
+        background: var(--danger)
+      }
+
+      .btn.ok {
+        background: var(--ok)
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px
+      }
+
+      .chip {
+        background: var(--panel-2);
+        border: 1px solid rgba(255, 255, 255, .06);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px
+      }
+
+      .list {
+        display: grid;
+        gap: 10px
+      }
+
+      .item {
+        background: var(--panel-2);
+        border: 1px solid rgba(255, 255, 255, .06);
+        padding: 12px;
+        border-radius: 12px
+      }
+
+      .flex {
+        display: flex;
+        align-items: center;
+        gap: 12px
+      }
+
+      .right {
+        margin-left: auto
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .kbd {
+        background: rgba(255, 255, 255, .08);
+        border: 1px solid rgba(255, 255, 255, .2);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 12px
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
+      }
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr
+        }
+
+        nav {
+          position: static
+        }
+
+        .row,
+        .row-3 {
+          grid-template-columns: 1fr
+        }
+      }
+    
