@@ -14,7 +14,7 @@
     var SETS_KEY = 'kv_study_sets';
     var QUEUE_KEY = 'kv_pending_queue';
 
-    
+    var SCRIPT_URL = ls(URL_KEY) || '';
     var MAIN_USER = ls(MAINUSER_KEY) || '';
     var CURRENT_USER = MAIN_USER;
     var readOnlyMode = false;
