@@ -1,4 +1,3 @@
-
     // ════════════════════════════════════════════
     // STORAGE KEYS & STATE
     // ════════════════════════════════════════════
@@ -1857,10 +1856,6 @@
       }
       var en = (el('f-en').value || '').trim();
       var kh = (el('f-kh').value || '').trim();
-      if (!en && !kh) {
-        toast('Enter at least English or Khmer.', 'err');
-        return;
-      }
       if (!SCRIPT_URL) {
         toast('Connect your sheet in ⚙️ first.', 'err');
         return;
