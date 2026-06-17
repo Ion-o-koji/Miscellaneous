@@ -1,4 +1,3 @@
-
     :root {
       --bg: #0f0f1a;
       --surf: #1a1a2e;
@@ -703,7 +702,8 @@
 
     tbody tr {
       border-bottom: 1px solid var(--bdr);
-      transition: background .1s user-select: none;
+      transition: background .1s;
+      user-select: none;
       -webkit-user-select: none
     }
 
