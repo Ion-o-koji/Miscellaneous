@@ -2665,6 +2665,7 @@
     function clearCache() {
       lsSet(CACHE_KEY, '');
       lsSet(SYNC_KEY, '');
+      lsSet(URL_KEY, '');
       var ci = el('cfg-cache-info');
       if (ci) ci.textContent = 'Cleared';
       toast('Cache cleared', 'inf');
