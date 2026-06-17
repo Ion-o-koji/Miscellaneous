@@ -981,7 +981,7 @@
       THEME_KEY = 'kv_theme',
       BEST_STREAK_KEY = 'kv_best_streak';
 
-    var SCRIPT_URL = ls(URL_KEY) || 'https://script.google.com/macros/s/AKfycbyKkFgJK9_NJB9shw49ypzfPYOQ_O1x1C_O-HvdyeOmIzak2DlFj1VkwM4Nv_oOxDo/exec';
+    var SCRIPT_URL = ls(URL_KEY) || 'https://script.google.com/macros/s/AKfycbwNUtos-MpjfmC3-yxoVt-xwvfv-ix7pEuPGcEVNxSyCP3F4rKVwY-KzO7297bXT8qI/exec';
     var MAIN_USER = ls(MAINUSER_KEY) || '';
     var CURRENT_USER = MAIN_USER;
     var readOnlyMode = false;
