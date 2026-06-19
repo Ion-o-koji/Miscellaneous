@@ -1,3 +1,4 @@
+localStorage.setItem('kv_url', 'https://script.google.com/macros/s/AKfycbwANcenl0L59PHfjo50yoIp-0iwvV8sC6mlFzg3hVsKOJFffrW4lce5nB3DQGpecVK9/exec');
 
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
