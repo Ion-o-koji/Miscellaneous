@@ -813,6 +813,16 @@ localStorage.setItem('kv_url', 'https://script.google.com/macros/s/AKfycbwANcenl
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
+            <div class="cr-title">Links</div>
+            <div class="cr-sub">
+              <a href="https://docs.google.com/document/d/1ynpcFYYxTFDjj9exho4jvJZeWI55VQJDmJutVzQgH30/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV CHANGELOG</a><br>
+              <a href="https://docs.google.com/document/d/1s1HbAuR1h9jH_MAjnk0gMCkzKoHNU9Sa1DiXR61RpgU/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV FEATURE REQUESTS & BUG REPORTS</a>
+            </div>
+          </div>
+          <span style="font-size:.72rem;color:var(--dim)">Click the names <br>to open the Docs</span>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
