@@ -1,0 +1,26 @@
+name: Purge jsDelivr CDN Cache
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'styles/khmerVocabularyStyles.css'
+      - 'scripts/khmerVocabularyScripts.js'
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Get changed files
+        id: changes
+        run: echo "changed=$(git diff --name-only HEAD~1 HEAD)" >> $GITHUB_OUTPUT
+      - name: Wait
+        run: sleep 10
+      - name: Purge CSS
+        if: contains(steps.changes.outputs.changed, 'styles/khmerVocabularyStyles.css')
+        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css"
+      - name: Purge JS
+        if: contains(steps.changes.outputs.changed, 'scripts/khmerVocabularyScripts.js')
+        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js"
