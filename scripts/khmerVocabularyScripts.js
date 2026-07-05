@@ -1,4 +1,3 @@
-
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
       var _app = document.getElementById('app');
@@ -828,11 +827,11 @@
           <div class="cfg-row-left">
             <div class="cr-title">Links</div>
             <div class="cr-sub">
-              <a href="https://docs.google.com/document/d/1ynpcFYYxTFDjj9exho4jvJZeWI55VQJDmJutVzQgH30/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV CHANGELOG</a><br>
-              <a href="https://docs.google.com/document/d/1s1HbAuR1h9jH_MAjnk0gMCkzKoHNU9Sa1DiXR61RpgU/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV FEATURE REQUESTS & BUG REPORTS</a>
+              <div class="cr-sub">1. <a href="https://docs.google.com/document/d/1ynpcFYYxTFDjj9exho4jvJZeWI55VQJDmJutVzQgH30/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV CHANGELOG</a></div>
+              <div class="cr-sub">2. <a href="https://docs.google.com/document/d/1s1HbAuR1h9jH_MAjnk0gMCkzKoHNU9Sa1DiXR61RpgU/edit?usp=drivesdk" style="text-decoration:underline;color:#6b9bd1">KV FEATURE REQUESTS & BUG REPORTS</a></div>
             </div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">Click the names <br>to open the Docs</span>
+          <span style="font-size:.72rem;color:var(--dim)">Extenal<br>Docs</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
