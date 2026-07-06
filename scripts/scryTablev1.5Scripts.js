@@ -1,6 +1,5 @@
-
     firebase.initializeApp({
-      apiKey: "AIzaSyBXzgRojYdr9HF_qbsiMSkbu3psVxQ0h-8",
+      apiKey: "",
       authDomain: "delve-65f2c.firebaseapp.com",
       databaseURL: "https://delve-65f2c-default-rtdb.firebaseio.com/",
       projectId: "delve-65f2c",
