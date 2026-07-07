@@ -1,6 +1,7 @@
     // ── Clear Browser Cache ──────────────────────────────────────────────────────
 
-    (function() {
+
+(function() {
       function getHash() {
         const jsFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js'];
         const cssFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css'];
@@ -9,7 +10,7 @@
         const textEncoder = new TextEncoder();
 
         const hashFile = (fileUrl) => {
-          return fetch(fileUrl)
+          return fetch(fileUrl, { cache: 'no-store' })
             .then(response => {
               if (!response.ok) {
                 return '';
@@ -55,6 +56,7 @@
                 })
                 .then(() => {
                   localStorage.setItem('hashes', currentHashes);
+                  location.reload(true);
                 })
                 .catch(() => {});
             }
@@ -64,6 +66,7 @@
 
       document.addEventListener('DOMContentLoaded', clearCache);
     })();
+
 
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
