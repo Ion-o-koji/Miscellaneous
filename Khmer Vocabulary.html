@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!-- By Ion-o-koji (Porter Olsen) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="theme-color" content="#0f0f1a">
+<meta name="description" content="Khmer vocabulary study app">
+<link rel="manifest" href="/manifest.json">
+<title>Khmer Vocabulary</title>
+<link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.3/svgs/solid/book.svg">
+<script>(function(){const VERSION_URL='https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/version.txt',STORAGE_KEY='kv_app_version',ASSETS=[{type:'css',url:'https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css'},{type:'js',url:'https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js'}];function injectCss(u){const l=document.createElement('link');l.rel='stylesheet';l.href=u;(document.head||document.documentElement).appendChild(l)}function injectJsSequential(urls,done){if(!urls||urls.length===0){if(done)done();return}const url=urls.shift(),s=document.createElement('script');s.src=url;s.async=false;s.onload=function(){injectJsSequential(urls,done)};s.onerror=function(){console.warn('kv script failed:',url);injectJsSequential(urls,done)};(document.head||document.documentElement).appendChild(s)}function prefixedUrl(url,ver){return(/^[0-9a-f]{7,40}$/.test(ver)&&url.indexOf('@main')!==-1)?url.replace('@main','@'+ver):(url.indexOf('?')===-1?url+'?v='+encodeURIComponent(ver):url+'&v='+encodeURIComponent(ver))}function injectAssets(version){console.debug('kv bootstrap version=',version);const css=[],js=[];ASSETS.forEach(a=>{if(version){const u=prefixedUrl(a.url,version);a.type==='css'?css.push(u):js.push(u)}else{a.type==='css'?css.push(a.url):js.push(a.url)}});css.forEach(injectCss);injectJsSequential(js.slice(),function(){console.debug('kv bootstrap done')})}function start(){try{fetch(VERSION_URL,{cache:'no-cache',mode:'cors'}).then(resp=>{if(!resp.ok)throw new Error('Version fetch failed '+resp.status);return resp.text()}).then(txt=>{const ver=(txt||'').trim();if(ver){try{localStorage.setItem(STORAGE_KEY,ver)}catch(e){}injectAssets(ver)}else throw new Error('Empty version')}).catch(err=>{console.warn('kv version fetch failed',err);let stored=null;try{stored=localStorage.getItem(STORAGE_KEY)}catch(e){}if(stored)injectAssets(stored);else injectAssets(null)})}catch(e){console.warn('kv bootstrap exception',e);let s=null;try{s=localStorage.getItem(STORAGE_KEY)}catch(e){}if(s)injectAssets(s);else injectAssets(null)}}start();})();</script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;700&family=Noto+Serif+Khmer:wght@400;700&family=Battambang:wght@400;700&family=Hanuman:wght@400;700&family=Moul&display=swap" rel="stylesheet">
+</head>
+<body>
+<div id="app"></div>
+</body>
+</html>
