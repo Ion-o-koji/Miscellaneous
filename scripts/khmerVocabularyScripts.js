@@ -907,7 +907,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.1</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
@@ -6863,7 +6863,7 @@
     });
 
     (() => {
-      const ENTRY = 'Khmer Vocabulary v8.6',
+      const ENTRY = 'Khmer Vocabulary v8.6.1',
         KEY = 'Ion-o-koji Watermark';
       const logs = (localStorage.getItem(KEY) || "").split('\n').map(line => line.replace(/^- /, '').trim()).filter(line => line && line !== ENTRY);
       logs.push(ENTRY);
