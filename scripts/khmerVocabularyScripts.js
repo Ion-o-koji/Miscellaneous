@@ -894,7 +894,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.2</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.3</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
