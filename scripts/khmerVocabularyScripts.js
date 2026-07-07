@@ -1,3 +1,4 @@
+// Test
     // ── Clear Browser Cache ──────────────────────────────────────────────────────
     (function() {
       function getHash() {
