@@ -1,3 +1,69 @@
+    // ── Clear Browser Cache ──────────────────────────────────────────────────────
+    (function() {
+      function getHash() {
+        const jsFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js'];
+        const cssFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css'];
+
+        const promises = [];
+        const textEncoder = new TextEncoder();
+
+        const hashFile = (fileUrl) => {
+          return fetch(fileUrl)
+            .then(response => {
+              if (!response.ok) {
+                return '';
+              }
+              return response.text();
+            })
+            .then(text => {
+              if (text === '') return '';
+              const data = textEncoder.encode(text);
+              return window.crypto.subtle.digest('SHA-256', data);
+            })
+            .then(hashBuffer => {
+              if (!hashBuffer) return '';
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              return hashHex;
+            })
+            .catch(() => {
+              return '';
+            });
+        };
+
+        jsFiles.forEach(file => {
+          promises.push(hashFile(file));
+        });
+
+        cssFiles.forEach(file => {
+          promises.push(hashFile(file));
+        });
+
+        return Promise.all(promises);
+      }
+
+      function clearCache() {
+        getHash().then(hashes => {
+            const storedHashes = localStorage.getItem('hashes');
+            const currentHashes = hashes.join(',');
+
+            if (storedHashes !== currentHashes) {
+              caches.keys().then(cacheNames => {
+                  const deletionPromises = cacheNames.map(cacheName => caches.delete(cacheName));
+                  return Promise.all(deletionPromises);
+                })
+                .then(() => {
+                  localStorage.setItem('hashes', currentHashes);
+                })
+                .catch(() => {});
+            }
+          })
+          .catch(() => {});
+      }
+
+      document.addEventListener('DOMContentLoaded', clearCache);
+    })();
+
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
       var _app = document.getElementById('app');
@@ -819,9 +885,12 @@
         <div class="cfg-row">
           <div class="cfg-row-left">
             <div class="cr-title">Support</div>
-            <div class="cr-sub">Email & Messenger</div>
+            <div class="cr-sub">
+              <div class="cr-sub">1. <a href="olsen.porter@missionary.org" style="text-decoration:underline;color:#6b9bd1">olsen.porter@missionary.org</a></div>
+              <div class="cr-sub">2. <a href="https://m.me/olsen.porter" style="text-decoration:underline;color:#6b9bd1">https://m.me/olsen.porter</a></div>
+            </div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)"><a href="mailto:olsen.porter@missionary.org" style="color:#6b9bd1;text-decoration:underline">olsen.porter@missionary.org</a><br><a href="https://m.me/olsen.porter" target="_blank" rel="noopener noreferrer" style="color:#6b9bd1;text-decoration:underline">m.me/olsen.porter</a></span>
+          <span style="font-size:.72rem;color:var(--dim)">Email &<br>Messenger</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
