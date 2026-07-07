@@ -1,4 +1,1 @@
-# version file for Khmer Vocabulary
-# The content is a single value (commit SHA or timestamp) used by the client bootstrap to bust caches.
-
 INITIAL
