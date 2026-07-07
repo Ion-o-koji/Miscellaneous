@@ -1,26 +1,132 @@
-name: Purge jsDelivr CDN Cache
+name: Purge jsDelivr CDN Cache and publish version
 on:
   push:
     branches:
       - main
     paths:
-      - 'styles/khmerVocabularyStyles.css'
-      - 'scripts/khmerVocabularyScripts.js'
+      - 'styles/**'
+      - 'scripts/**'
+
 jobs:
   purge:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+
       - name: Get changed files
         id: changes
-        run: echo "changed=$(git diff --name-only HEAD~1 HEAD)" >> $GITHUB_OUTPUT
-      - name: Wait
-        run: sleep 10
-      - name: Purge CSS
-        if: contains(steps.changes.outputs.changed, 'styles/khmerVocabularyStyles.css')
-        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css"
-      - name: Purge JS
-        if: contains(steps.changes.outputs.changed, 'scripts/khmerVocabularyScripts.js')
-        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js"
+        run: |
+          echo "changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})" >> $GITHUB_OUTPUT
+
+      - name: Wait a bit for CDN
+        run: sleep 6
+
+      - name: Purge and verify changed files
+        run: |
+          set -euo pipefail
+          RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/main"
+          CDN_BASE="https://cdn.jsdelivr.net/gh/${{ github.repository }}@main"
+          PURGE_BASE="https://purge.jsdelivr.net/gh/${{ github.repository }}@main"
+          changed="${{ steps.changes.outputs.changed }}"
+          echo "Files changed: $changed"
+
+          verify_and_purge() {
+            relpath="$1"
+            raw="$RAW_BASE/$relpath"
+            cdn="$CDN_BASE/$relpath"
+            purge="$PURGE_BASE/$relpath"
+            echo "--- Purging $relpath ---"
+            http_code=$(curl -sS -w "%{http_code}" -o /tmp/purge_out.txt "$purge" ) || true
+            echo "Purge HTTP code: $http_code"
+            echo "Purge body:"; cat /tmp/purge_out.txt || true
+
+            curl -sS "$raw" -o /tmp/raw_file || true
+            if [ ! -s /tmp/raw_file ]; then
+              echo "Failed to fetch raw $raw"; return 1
+            fi
+            rawhash=$(sha256sum /tmp/raw_file | awk '{print $1}')
+            echo "rawhash=$rawhash"
+
+            attempts=0
+            max=18
+            while [ $attempts -lt $max ]; do
+              attempts=$((attempts+1))
+              echo "Attempt $attempts: fetching CDN copy..."
+              curl -sS "$cdn" -o /tmp/cdn_file || true
+              if [ -s /tmp/cdn_file ]; then
+                cdnhash=$(sha256sum /tmp/cdn_file | awk '{print $1}')
+                echo "cdnhash=$cdnhash"
+                if [ "$cdnhash" = "$rawhash" ]; then
+                  echo "CDN content matches raw GitHub for $relpath"
+                  return 0
+                else
+                  echo "Mismatch; waiting 5s..."
+                fi
+              else
+                echo "CDN returned empty; waiting 5s..."
+              fi
+              sleep 5
+            done
+            echo "Timed out waiting for CDN to update $relpath"
+            return 2
+          }
+
+          IFS=$'\n'
+          rc=0
+          for f in $changed; do
+            if [[ $f == styles/* || $f == scripts/* ]]; then
+              verify_and_purge "$f" || rc=$?
+            fi
+          done
+          if [ $rc -ne 0 ]; then
+            echo "One or more purges failed or timed out. Failing job to notify operator."
+            exit $rc
+          fi
+
+      - name: Update version.txt and push (or open PR)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          NEWVER="${{ github.sha }}"
+          echo "Updating version.txt to $NEWVER"
+          echo "$NEWVER" > version.txt
+          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git add version.txt
+          if git diff --staged --quiet; then
+            echo "version.txt unchanged; nothing to commit"
+            exit 0
+          fi
+          git commit -m "ci: update version to $NEWVER"
+
+          echo "Trying to push version.txt to main..."
+          if git push origin HEAD:main; then
+            echo "Pushed version.txt directly to main."
+            exit 0
+          else
+            echo "Direct push failed (likely branch protection). Creating branch and PR..."
+            BR="ci/update-version-${NEWVER::7}"
+            git push --set-upstream origin HEAD:"$BR"
+            echo "Branch pushed: $BR"
+
+            API_URL="https://api.github.com/repos/${{ github.repository }}/pulls"
+            PR_TITLE="ci: update version to ${NEWVER}"
+            PR_BODY="Automated update of version.txt to ${NEWVER} after CDN purge/verify."
+            DATA=$(printf '{"title":"%s","head":"%s","base":"%s","body":"%s"}' "$PR_TITLE" "$BR" "main" "$PR_BODY")
+            resp=$(curl -sS -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" "$API_URL" -d "$DATA")
+            pr_url=$(echo "$resp" | python3 -c "import sys,json;print(json.load(sys.stdin).get('html_url',''))")
+            if [ -z "$pr_url" ]; then
+              echo "Failed to create PR. Response:"
+              echo "$resp"
+              exit 1
+            else
+              echo "PR created: $pr_url"
+            fi
+          fi
