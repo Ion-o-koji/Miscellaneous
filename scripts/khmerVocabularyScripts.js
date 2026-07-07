@@ -1,5 +1,5 @@
-// Test
     // ── Clear Browser Cache ──────────────────────────────────────────────────────
+
     (function() {
       function getHash() {
         const jsFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js'];
@@ -908,7 +908,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.1</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.2</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
