@@ -2,69 +2,52 @@
 
 
 (function() {
-      function getHash() {
-        const jsFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js'];
-        const cssFiles = ['https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css'];
+      const filesToMonitor = [
+        'https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js',
+        'https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css'
+      ];
 
-        const promises = [];
-        const textEncoder = new TextEncoder();
+      const textEncoder = new TextEncoder();
 
-        const hashFile = (fileUrl) => {
-          return fetch(fileUrl, { cache: 'no-store' })
-            .then(response => {
-              if (!response.ok) {
-                return '';
-              }
-              return response.text();
-            })
-            .then(text => {
-              if (text === '') return '';
-              const data = textEncoder.encode(text);
-              return window.crypto.subtle.digest('SHA-256', data);
-            })
-            .then(hashBuffer => {
-              if (!hashBuffer) return '';
-              const hashArray = Array.from(new Uint8Array(hashBuffer));
-              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-              return hashHex;
-            })
-            .catch(() => {
-              return '';
-            });
-        };
+      const getFileHash = (fileUrl) => {
+        return fetch(fileUrl, { cache: 'no-store' })
+          .then(response => {
+            if (!response.ok) {
+              return null;
+            }
+            return response.text();
+          })
+          .then(text => {
+            if (text === null) return '';
+            const data = textEncoder.encode(text);
+            return window.crypto.subtle.digest('SHA-256', data);
+          })
+          .then(hashBuffer => {
+            if (!hashBuffer) return '';
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+          })
+          .catch(() => {
+            return '';
+          });
+      };
 
-        jsFiles.forEach(file => {
-          promises.push(hashFile(file));
-        });
-
-        cssFiles.forEach(file => {
-          promises.push(hashFile(file));
-        });
-
-        return Promise.all(promises);
-      }
-
-      function clearCache() {
-        getHash().then(hashes => {
-            const storedHashes = localStorage.getItem('hashes');
+      function checkForUpdates() {
+        Promise.all(filesToMonitor.map(getFileHash))
+          .then(hashes => {
+            const storedHashes = localStorage.getItem('app_cdn_hashes');
             const currentHashes = hashes.join(',');
 
             if (storedHashes !== currentHashes) {
-              caches.keys().then(cacheNames => {
-                  const deletionPromises = cacheNames.map(cacheName => caches.delete(cacheName));
-                  return Promise.all(deletionPromises);
-                })
-                .then(() => {
-                  localStorage.setItem('hashes', currentHashes);
-                  location.reload(true);
-                })
-                .catch(() => {});
+              localStorage.setItem('app_cdn_hashes', currentHashes);
+              location.reload(true);
             }
           })
           .catch(() => {});
       }
 
-      document.addEventListener('DOMContentLoaded', clearCache);
+      document.addEventListener('DOMContentLoaded', checkForUpdates);
     })();
 
 
