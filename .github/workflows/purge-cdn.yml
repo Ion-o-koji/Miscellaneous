@@ -29,7 +29,10 @@ jobs:
 
       - name: Purge and verify changed files
         run: |
-          set -euo pipefail
+          # Fail fast, trace commands for debugging
+          set -euxo pipefail
+          export PS4='+[$(date +"%T")] '
+
           RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/main"
           CDN_BASE="https://cdn.jsdelivr.net/gh/${{ github.repository }}@main"
           PURGE_BASE="https://purge.jsdelivr.net/gh/${{ github.repository }}@main"
@@ -42,46 +45,84 @@ jobs:
             cdn="$CDN_BASE/$relpath"
             purge="$PURGE_BASE/$relpath"
             echo "--- Purging $relpath ---"
-            http_code=$(curl -sS -w "%{http_code}" -o /tmp/purge_out.txt "$purge" ) || true
-            echo "Purge HTTP code: $http_code"
-            echo "Purge body:"; cat /tmp/purge_out.txt || true
 
+            # Try purge up to 3 times (handle transient server errors / rate limits)
+            attempts_purge=0
+            max_purge=3
+            http_code=""
+            while [ $attempts_purge -lt $max_purge ]; do
+              attempts_purge=$((attempts_purge+1))
+              echo "Purge attempt $attempts_purge -> $purge"
+              # Save body to inspect it; curl will write body to /tmp/purge_out.txt and status code to http_code
+              http_code=$(curl -sS -w "%{http_code}" -o /tmp/purge_out.txt "$purge") || true
+              echo "Purge HTTP code: $http_code"
+              echo "Purge body:"; cat /tmp/purge_out.txt || true
+              # Accept any 2xx or 204
+              if [ "${http_code:0:1}" = "2" ]; then
+                echo "Purge accepted by jsDelivr (HTTP $http_code)"
+                break
+              fi
+              echo "Purge not accepted (HTTP $http_code). Sleeping 3s and retrying..."
+              sleep 3
+            done
+            if [ "${http_code:0:1}" != "2" ]; then
+              echo "Purge failed after $max_purge attempts. Response:"
+              cat /tmp/purge_out.txt || true
+              return 1
+            fi
+
+            # Fetch raw file and ensure it's non-empty
             curl -sS "$raw" -o /tmp/raw_file || true
             if [ ! -s /tmp/raw_file ]; then
-              echo "Failed to fetch raw $raw"; return 1
+              echo "Failed to fetch raw $raw (empty or missing)"; cat /tmp/purge_out.txt || true
+              return 1
             fi
             rawhash=$(sha256sum /tmp/raw_file | awk '{print $1}')
-            echo "rawhash=$rawhash"
+            echo "rawhash=$rawhash (size=$(wc -c < /tmp/raw_file) bytes)"
 
+            # Poll CDN until content matches raw or timeout
             attempts=0
-            max=18
+            max=24   # up to 24 attempts * 5s = ~2 minutes
             while [ $attempts -lt $max ]; do
               attempts=$((attempts+1))
-              echo "Attempt $attempts: fetching CDN copy..."
+              echo "Attempt $attempts: fetching CDN copy ($cdn)..."
               curl -sS "$cdn" -o /tmp/cdn_file || true
               if [ -s /tmp/cdn_file ]; then
                 cdnhash=$(sha256sum /tmp/cdn_file | awk '{print $1}')
-                echo "cdnhash=$cdnhash"
+                echo "cdnhash=$cdnhash (size=$(wc -c < /tmp/cdn_file) bytes)"
                 if [ "$cdnhash" = "$rawhash" ]; then
                   echo "CDN content matches raw GitHub for $relpath"
                   return 0
                 else
+                  echo "Mismatch on attempt $attempts; showing head of both files to diagnose..."
+                  echo "---- raw head ----"
+                  head -c 400 /tmp/raw_file || true
+                  echo "---- cdn head ----"
+                  head -c 400 /tmp/cdn_file || true
                   echo "Mismatch; waiting 5s..."
                 fi
               else
-                echo "CDN returned empty; waiting 5s..."
+                echo "CDN returned empty on attempt $attempts; waiting 5s..."
               fi
               sleep 5
             done
-            echo "Timed out waiting for CDN to update $relpath"
+            echo "Timed out waiting for CDN to update $relpath after $max attempts"
+            echo "Final purge response body:"
+            cat /tmp/purge_out.txt || true
+            echo "Raw file size: $(wc -c < /tmp/raw_file || true)"
+            echo "CDN file size: $(wc -c < /tmp/cdn_file || true)"
             return 2
           }
 
+          # Iterate only over changed paths (newline separated)
           IFS=$'\n'
           rc=0
           for f in $changed; do
             if [[ $f == styles/* || $f == scripts/* ]]; then
+              echo "Processing: $f"
               verify_and_purge "$f" || rc=$?
+            else
+              echo "Skipping unchanged path: $f"
             fi
           done
           if [ $rc -ne 0 ]; then
