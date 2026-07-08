@@ -1,4 +1,84 @@
     // ── Clear Browser Cache ─────────────────────────────────────────────
+
+// scripts/khmerVocabularyScripts.js
+// Self-updating bootstrap wrapper.
+// Replace the CDN-served app script with the authoritative raw GitHub copy at runtime,
+// and inject the canonical CSS so cached CDN assets don't block updates.
+
+(async function kv_self_update_wrapper() {
+  if (typeof window === 'undefined') return;
+  if (window.__kv_injected) return;
+  window.__kv_injected = true;
+
+  const REPO_RAW_BASE = 'https://raw.githubusercontent.com/Ion-o-koji/Miscellaneous/main';
+  const RAW_SCRIPT_URL = REPO_RAW_BASE + '/scripts/khmerVocabularyScripts.js';
+  const RAW_CSS_URL = REPO_RAW_BASE + '/styles/khmerVocabularyStyles.css';
+
+  // small helper: fetch text with timeout and no-cache to get freshest copy
+  async function fetchText(url, timeoutMs = 10000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const resp = await fetch(url + '?_=' + Date.now(), { cache: 'no-store', mode: 'cors', signal: controller.signal });
+      clearTimeout(id);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return await resp.text();
+    } finally {
+      clearTimeout(id);
+    }
+  }
+
+  // try to fetch the canonical CSS and inject as <style>
+  (async function updateCss() {
+    try {
+      const rawCss = await fetchText(RAW_CSS_URL, 8000);
+      if (!rawCss) return;
+      // see if we already have this injection
+      const prev = document.querySelector('style[data-kv-injected-css]');
+      if (prev && prev.textContent === rawCss) return;
+      // remove any previous ones (older versions)
+      Array.from(document.querySelectorAll('style[data-kv-injected-css]')).forEach(n => n.remove());
+
+      // create style element with a marker to identify it later
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute('data-kv-injected-css', RAW_CSS_URL);
+      styleEl.textContent = rawCss;
+      // append early so styles take effect quickly
+      (document.head || document.documentElement).appendChild(styleEl);
+      console.info('kv: injected fresh CSS from raw GitHub');
+    } catch (err) {
+      console.warn('kv: CSS fetch/inject failed', err);
+    }
+  })();
+
+  // fetch the canonical script and inject it so the rest of the app runs from raw canonical source
+  try {
+    const rawScript = await fetchText(RAW_SCRIPT_URL, 12000);
+    if (!rawScript) throw new Error('empty raw script');
+
+    // If the wrapper itself is identical to rawScript (unlikely), just run rawScript anyway.
+    // Remove any previously injected canonical script markers to avoid duplicates.
+    Array.from(document.querySelectorAll('script[data-kv-injected-script]')).forEach(n => n.remove());
+
+    // Insert the raw script into the page with a sourceURL for easier debugging
+    const s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.setAttribute('data-kv-injected-script', RAW_SCRIPT_URL);
+    s.text = rawScript + '\n//# sourceURL=' + RAW_SCRIPT_URL;
+    // Prefer head to ensure early run; fallback to body
+    (document.head || document.documentElement || document.body).appendChild(s);
+
+    console.info('kv: injected canonical script from raw GitHub');
+
+    // Optionally, if you prefer to stop executing the wrapper's further code, return here.
+    return;
+  } catch (err) {
+    console.warn('kv: failed to fetch or inject canonical script, falling back to current copy', err);
+    // If raw fetch failed, the wrapper will continue and let the current (CDN) script run.
+    // No further action needed.
+  }
+})();
+
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
       var _app = document.getElementById('app');
