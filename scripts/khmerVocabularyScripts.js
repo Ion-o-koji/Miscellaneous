@@ -1,6 +1,6 @@
 /* ========== VERSION CHECK & CACHE BUSTER ========== */
 (function() {
-  var CURRENT_VERSION = '8.6.3'; // UPDATE THIS WHEN YOU RELEASE A NEW VERSION
+  var CURRENT_VERSION = '8.6.2'; // UPDATE THIS WHEN YOU RELEASE A NEW VERSION
   var VERSION_KEY = 'khmerVocab_version';
   var lastVersion = localStorage.getItem(VERSION_KEY);
   
@@ -887,7 +887,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.3</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.2</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
@@ -6843,7 +6843,7 @@
     });
 
     (() => {
-      const ENTRY = 'Khmer Vocabularyv8.6.3',
+      const ENTRY = 'Khmer Vocabularv8.6.2',
         KEY = 'Ion-o-koji Watermark';
       const logs = (localStorage.getItem(KEY) || "").split('\n').map(line => line.replace(/^- /, '').trim()).filter(line => line && line !== ENTRY);
       logs.push(ENTRY);
