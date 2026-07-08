@@ -1,6 +1,6 @@
 /* ========== VERSION CHECK & CACHE BUSTER ========== */
 (function() {
-  var CURRENT_VERSION = '8.6.3'; // UPDATE THIS WHEN YOU RELEASE A NEW VERSION
+  var CURRENT_VERSION = '8.6.2'; // UPDATE THIS WHEN YOU RELEASE A NEW VERSION
   var VERSION_KEY = 'khmerVocab_version';
   var lastVersion = localStorage.getItem(VERSION_KEY);
   
@@ -887,7 +887,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.3</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.2</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
@@ -6839,7 +6839,8 @@
                                                         // open the login modal so they must submit a password to proceed
                                                         var ov = el('user-ovl'); if (ov) ov.classList.add('open');
                                                         // focus password field if possible
-                                                        setTimeout(function() { if (up) up.focus(); }, 120); } catch (e) {} };
+                                                        setTimeout(function() { if (up) up.focus(); }, 120); } catch (e) {} }
+});
 
     (() => {
       const ENTRY = 'Khmer Vocabular v8.6.3',
