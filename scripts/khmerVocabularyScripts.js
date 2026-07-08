@@ -1,4 +1,5 @@
     // ── Clear Browser Cache ─────────────────────────────────────────────
+// Not working
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
       var _app = document.getElementById('app');
