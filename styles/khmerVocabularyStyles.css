@@ -10,9 +10,6 @@
       --dim: #94a3b8;
       --bdr: #2d2d4e;
       --bad: #ef4444;
-      --warn: #f59e0b;
-      --warn-bg: rgba(245, 158, 11, .10);
-      --warn-bdr: rgba(245, 158, 11, .30);
       --r: 10px;
       --hh: 52px;
     }
@@ -32,7 +29,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Header ── */
     header {
       background: var(--surf);
       border-bottom: 1px solid var(--bdr);
@@ -40,6 +36,7 @@
       height: var(--hh);
       display: flex;
       align-items: center;
+      gap: 10px;
       position: sticky;
       top: 0;
       z-index: 200;
@@ -71,52 +68,15 @@
       flex-shrink: 0;
     }
 
-    /* ── Warning Banner ── */
-    .warn-banner {
-      background: var(--warn-bg);
-      border-bottom: 1px solid var(--warn-bdr);
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: .78rem;
-      color: var(--warn);
-      font-weight: 600;
-    }
-
-    .warn-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--warn);
-      flex-shrink: 0;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: .35;
-      }
-    }
-
-    /* ── Main ── */
     main {
       max-width: 520px;
       margin: 0 auto;
       padding: 28px 16px 52px;
     }
 
-    /* ── Hero Card ── */
     .hero-card {
       background: var(--surf);
-      border: 1px solid var(--warn-bdr);
+      border: 1px solid rgba(245, 158, 11, .30);
       border-radius: 14px;
       padding: 28px 24px 24px;
       margin-bottom: 16px;
@@ -133,7 +93,7 @@
     .hero-title {
       font-size: 1.4rem;
       font-weight: 700;
-      color: var(--warn);
+      color: #f59e0b;
       margin-bottom: 10px;
       line-height: 1.25;
     }
@@ -175,7 +135,6 @@
       transform: translateY(0);
     }
 
-    /* ── Info Cards ── */
     .card {
       background: var(--surf);
       border: 1px solid var(--bdr);
@@ -242,7 +201,6 @@
       line-height: 1.55;
     }
 
-    /* ── Footer ── */
     footer {
       text-align: center;
       padding: 20px 16px 12px;
