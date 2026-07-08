@@ -6828,19 +6828,18 @@
     document.addEventListener('DOMContentLoaded', function() {
       applyTheme(ls(THEME_KEY) || 'dark');
       // C11: boot stale/incomplete (unverified) sessions — treat exactly like pressing Log Out
-      if (ls(MAINUSER_KEY) && !ls('kv_verified')) {
-        MAIN_USER = ls(MAINUSER_KEY) || '';
-        lsSet('kv_verified', '');
-        performLogout();
-      }
-      init();
-      if (S.autoFullscreen) {
-        var ov = el('fs-overlay');
-        if (ov) ov.style.display = 'flex';
-      }
-      applyTabOrder();
-      loadColWidths();
-    });
+      // C11: legacy accounts without kv_verified must re-auth. Instead of auto-clearing
+      // MAIN_USER (which causes the UI to hide the badge briefly), pre-fill the login
+      // modal so the user sees their name and is prompted to add a password.
+      if (ls(MAINUSER_KEY) && !ls('kv_verified')) { MAIN_USER = ls(MAINUSER_KEY) || ''; CURRENT_USER = MAIN_USER; applyUserBadge(); updateCfgUsername();
+      // don't override kv_verified here (leave it falsey). Show the login overlay
+      // so the user must enter a password to continue. This preserves the "force re-auth"
+                                                   // behavior without clearing the badge and causing flicker.
+                                                   try { var ui = el('user-inp'), up = el('user-pass'), msgEl = el('user-login-msg'); if (ui) ui.value = MAIN_USER; if (up) up.value = ''; if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Legacy account detected — please enter a password to secure your account.'; msgEl.style.background = 'rgba(255,243,205,.95)'; msgEl.style.color = 'var(--dim)'; msgEl.style.border = '1px solid rgba(255,200,0,.2)'; }
+                                                        // open the login modal so they must submit a password to proceed
+                                                        var ov = el('user-ovl'); if (ov) ov.classList.add('open');
+                                                        // focus password field if possible
+                                                        setTimeout(function() { if (up) up.focus(); }, 120); } catch (e) {} };
 
     (() => {
       const ENTRY = 'Khmer Vocabularv8.6.2',
