@@ -6839,7 +6839,8 @@
                                                         // open the login modal so they must submit a password to proceed
                                                         var ov = el('user-ovl'); if (ov) ov.classList.add('open');
                                                         // focus password field if possible
-                                                        setTimeout(function() { if (up) up.focus(); }, 120); } catch (e) {} };
+                                                        setTimeout(function() { if (up) up.focus(); }, 120); } catch (e) {} }
+});
 
     (() => {
       const ENTRY = 'Khmer Vocabular v8.6.3',
