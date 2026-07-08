@@ -1,5 +1,49 @@
-    // ── Clear Browser Cache ─────────────────────────────────────────────
-// Not working
+/* ========== VERSION CHECK & CACHE BUSTER ========== */
+(function() {
+  var CURRENT_VERSION = '8.6.3'; // UPDATE THIS WHEN YOU RELEASE A NEW VERSION
+  var VERSION_KEY = 'khmerVocab_version';
+  var lastVersion = localStorage.getItem(VERSION_KEY);
+  
+  // Only clear cache if version changed
+  if (lastVersion !== CURRENT_VERSION) {
+    console.log('Version update detected: ' + (lastVersion || 'fresh install') + ' → ' + CURRENT_VERSION);
+    
+    // Clear old caches
+    if ('caches' in window) {
+      caches.keys().then(function(cacheNames) {
+        cacheNames.forEach(function(cacheName) {
+          caches.delete(cacheName);
+        });
+      });
+    }
+    
+    // Add cache buster to CSS
+    var cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
+    cssLinks.forEach(function(link) {
+      var href = link.getAttribute('href');
+      if (href && href.includes('khmerVocabularyStyles')) {
+        link.setAttribute('href', href + (href.includes('?') ? '&' : '?') + 'v=' + CURRENT_VERSION);
+      }
+    });
+    
+    // Add cache buster to JS
+    var scriptTags = document.querySelectorAll('script[src]');
+    scriptTags.forEach(function(script) {
+      var src = script.getAttribute('src');
+      if (src && src.includes('khmerVocabularyScripts')) {
+        script.setAttribute('src', src + (src.includes('?') ? '&' : '?') + 'v=' + CURRENT_VERSION);
+      }
+    });
+    
+    // Save new version
+    localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+    console.log('Cache cleared and version updated to ' + CURRENT_VERSION);
+  } else {
+    console.log('Version ' + CURRENT_VERSION + ' already loaded');
+  }
+})();
+/* ========== END VERSION CHECK & CACHE BUSTER ========== */
+
     // ── Build UI ──────────────────────────────────────────────────────
     (function() {
       var _app = document.getElementById('app');
@@ -843,7 +887,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.2</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.3</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
@@ -6799,7 +6843,7 @@
     });
 
     (() => {
-      const ENTRY = 'Khmer Vocabulary v8.6.1',
+      const ENTRY = 'Khmer Vocabularyv8.6.3',
         KEY = 'Ion-o-koji Watermark';
       const logs = (localStorage.getItem(KEY) || "").split('\n').map(line => line.replace(/^- /, '').trim()).filter(line => line && line !== ENTRY);
       logs.push(ENTRY);
