@@ -1,5 +1,5 @@
     (function() {
-      var CURRENT_VERSION = '8.6.4';
+      var CURRENT_VERSION = '8.6.3';
       var VERSION_KEY = 'khmerVocab_version';
       var lastVersion = localStorage.getItem(VERSION_KEY);
 
@@ -865,7 +865,7 @@
             <div class="cr-title">Khmer Vocabulary</div>
             <div class="cr-sub">Personal or Social learning tool</div>
           </div>
-          <span style="font-size:.72rem;color:var(--dim)">v8.6.4</span>
+          <span style="font-size:.72rem;color:var(--dim)">v8.6.3</span>
         </div>
         <div class="cfg-row">
           <div class="cfg-row-left">
@@ -6831,7 +6831,7 @@
       };
 
       (() => {
-        const ENTRY = 'Khmer Vocabulary v8.6.4',
+        const ENTRY = 'Khmer Vocabulary v8.6.3',
           KEY = 'Ion-o-koji Watermark';
         const logs = (localStorage.getItem(KEY) || "").split('\n').map(line => line.replace(/^- /, '').trim()).filter(line => line && line !== ENTRY);
         logs.push(ENTRY);
