@@ -1,82 +1,74 @@
     // ── Clear Browser Cache ─────────────────────────────────────────────
 
-// scripts/khmerVocabularyScripts.js
-// Self-updating bootstrap wrapper.
-// Replace the CDN-served app script with the authoritative raw GitHub copy at runtime,
-// and inject the canonical CSS so cached CDN assets don't block updates.
+// Top-of-file improvements: warn when opened via file://, robust fetch with timeout used by self-update
+(function() {
+  'use strict';
 
-(async function kv_self_update_wrapper() {
-  if (typeof window === 'undefined') return;
-  if (window.__kv_injected) return;
-  window.__kv_injected = true;
-
-  const REPO_RAW_BASE = 'https://raw.githubusercontent.com/Ion-o-koji/Miscellaneous/main';
-  const RAW_SCRIPT_URL = REPO_RAW_BASE + '/scripts/khmerVocabularyScripts.js';
-  const RAW_CSS_URL = REPO_RAW_BASE + '/styles/khmerVocabularyStyles.css';
-
-  // small helper: fetch text with timeout and no-cache to get freshest copy
-  async function fetchText(url, timeoutMs = 10000) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const resp = await fetch(url + '?_=' + Date.now(), { cache: 'no-store', mode: 'cors', signal: controller.signal });
-      clearTimeout(id);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      return await resp.text();
-    } finally {
-      clearTimeout(id);
-    }
+  // If user opens the HTML as file://, many fetch()/CORS behaviors and service-worker things may fail.
+  // Provide a clear, non-blocking console message and a helpful hint.
+  if (typeof location !== 'undefined' && location.protocol === 'file:') {
+    console.warn('Khmer Vocabulary running from file:// — please serve over HTTP for full functionality (e.g. run `python3 -m http.server` in the repo). Some features may be unavailable.');
   }
 
-  // try to fetch the canonical CSS and inject as <style>
-  (async function updateCss() {
-    try {
-      const rawCss = await fetchText(RAW_CSS_URL, 8000);
-      if (!rawCss) return;
-      // see if we already have this injection
-      const prev = document.querySelector('style[data-kv-injected-css]');
-      if (prev && prev.textContent === rawCss) return;
-      // remove any previous ones (older versions)
-      Array.from(document.querySelectorAll('style[data-kv-injected-css]')).forEach(n => n.remove());
-
-      // create style element with a marker to identify it later
-      const styleEl = document.createElement('style');
-      styleEl.setAttribute('data-kv-injected-css', RAW_CSS_URL);
-      styleEl.textContent = rawCss;
-      // append early so styles take effect quickly
-      (document.head || document.documentElement).appendChild(styleEl);
-      console.info('kv: injected fresh CSS from raw GitHub');
-    } catch (err) {
-      console.warn('kv: CSS fetch/inject failed', err);
+  // Small utility: fetch text with timeout and optional retries
+  async function fetchText(url, timeoutMs = 10000, retries = 1) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const resp = await fetch(url, { cache: 'no-store', signal: controller.signal });
+        clearTimeout(id);
+        if (!resp.ok) {
+          const errText = await resp.text().catch(() => '');
+          throw new Error(`HTTP ${resp.status} ${resp.statusText} - ${errText}`);
+        }
+        return await resp.text();
+      } catch (err) {
+        clearTimeout(id);
+        if (attempt < retries) {
+          console.warn(`fetchText attempt ${attempt} for ${url} failed:`, err, '— retrying...');
+          await new Promise(r => setTimeout(r, 500 * attempt));
+          continue;
+        }
+        // Return null instead of throwing to allow graceful fallback in calling code
+        console.warn(`fetchText failed for ${url}:`, err);
+        return null;
+      }
     }
+    return null;
+  }
+
+  // Self-update wrapper (existing code used an IIFE; preserve but use fetchText)
+  (async function kv_self_update_wrapper() {
+    // if you previously had logic here to update CSS/JS from CDN, use fetchText with retries
+    // Example: try to fetch the canonical CSS and inject as <style>
+    async function updateCss() {
+      try {
+        const cssUrl = (window.SCRIPT_URL && window.SCRIPT_URL.replace(/[^/]+$/, '') + 'styles/khmerVocabularyStyles.css') || 'https://cdn.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css';
+        const cssText = await fetchText(cssUrl, 8000, 2);
+        if (cssText) {
+          const s = document.createElement('style');
+          s.setAttribute('data-injected', 'kv-css');
+          s.textContent = cssText;
+          document.head.appendChild(s);
+          console.info('Injected remote CSS from', cssUrl);
+        } else {
+          console.warn('Could not fetch remote CSS; using bundled/default styles.');
+        }
+      } catch (e) {
+        console.error('updateCss error:', e);
+      }
+    }
+
+    // Run updateCss but do not let failure block page render
+    updateCss().catch(e => console.warn('updateCss outer catch:', e));
+
+    // ... rest of your kv_self_update_wrapper code ...
   })();
 
-  // fetch the canonical script and inject it so the rest of the app runs from raw canonical source
-  try {
-    const rawScript = await fetchText(RAW_SCRIPT_URL, 12000);
-    if (!rawScript) throw new Error('empty raw script');
+  // Expose fetchText to the rest of the script if other functions need it
+  window.kv_fetchText = fetchText;
 
-    // If the wrapper itself is identical to rawScript (unlikely), just run rawScript anyway.
-    // Remove any previously injected canonical script markers to avoid duplicates.
-    Array.from(document.querySelectorAll('script[data-kv-injected-script]')).forEach(n => n.remove());
-
-    // Insert the raw script into the page with a sourceURL for easier debugging
-    const s = document.createElement('script');
-    s.type = 'text/javascript';
-    s.setAttribute('data-kv-injected-script', RAW_SCRIPT_URL);
-    s.text = rawScript + '\n//# sourceURL=' + RAW_SCRIPT_URL;
-    // Prefer head to ensure early run; fallback to body
-    (document.head || document.documentElement || document.body).appendChild(s);
-
-    console.info('kv: injected canonical script from raw GitHub');
-
-    // Optionally, if you prefer to stop executing the wrapper's further code, return here.
-    return;
-  } catch (err) {
-    console.warn('kv: failed to fetch or inject canonical script, falling back to current copy', err);
-    // If raw fetch failed, the wrapper will continue and let the current (CDN) script run.
-    // No further action needed.
-  }
 })();
 
     // ── Build UI ──────────────────────────────────────────────────────
