@@ -1,173 +1,26 @@
-name: Purge jsDelivr CDN Cache and publish version
+name: Purge jsDelivr CDN Cache
 on:
   push:
     branches:
       - main
     paths:
-      - 'styles/**'
-      - 'scripts/**'
-
+      - 'styles/khmerVocabularyStyles.css'
+      - 'scripts/khmerVocabularyScripts.js'
 jobs:
   purge:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
+          fetch-depth: 2
       - name: Get changed files
         id: changes
-        run: |
-          echo "changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})" >> $GITHUB_OUTPUT
-
-      - name: Wait a bit for CDN
-        run: sleep 6
-
-      - name: Purge and verify changed files
-        run: |
-          # Fail fast, trace commands for debugging
-          set -euxo pipefail
-          export PS4='+[$(date +"%T")] '
-
-          RAW_BASE="https://raw.githubusercontent.com/${{ github.repository }}/main"
-          CDN_BASE="https://cdn.jsdelivr.net/gh/${{ github.repository }}@main"
-          PURGE_BASE="https://purge.jsdelivr.net/gh/${{ github.repository }}@main"
-          changed="${{ steps.changes.outputs.changed }}"
-          echo "Files changed: $changed"
-
-          verify_and_purge() {
-            relpath="$1"
-            raw="$RAW_BASE/$relpath"
-            cdn="$CDN_BASE/$relpath"
-            purge="$PURGE_BASE/$relpath"
-            echo "--- Purging $relpath ---"
-
-            # Try purge up to 3 times (handle transient server errors / rate limits)
-            attempts_purge=0
-            max_purge=3
-            http_code=""
-            while [ $attempts_purge -lt $max_purge ]; do
-              attempts_purge=$((attempts_purge+1))
-              echo "Purge attempt $attempts_purge -> $purge"
-              # Save body to inspect it; curl will write body to /tmp/purge_out.txt and status code to http_code
-              http_code=$(curl -sS -w "%{http_code}" -o /tmp/purge_out.txt "$purge") || true
-              echo "Purge HTTP code: $http_code"
-              echo "Purge body:"; cat /tmp/purge_out.txt || true
-              # Accept any 2xx or 204
-              if [ "${http_code:0:1}" = "2" ]; then
-                echo "Purge accepted by jsDelivr (HTTP $http_code)"
-                break
-              fi
-              echo "Purge not accepted (HTTP $http_code). Sleeping 3s and retrying..."
-              sleep 3
-            done
-            if [ "${http_code:0:1}" != "2" ]; then
-              echo "Purge failed after $max_purge attempts. Response:"
-              cat /tmp/purge_out.txt || true
-              return 1
-            fi
-
-            # Fetch raw file and ensure it's non-empty
-            curl -sS "$raw" -o /tmp/raw_file || true
-            if [ ! -s /tmp/raw_file ]; then
-              echo "Failed to fetch raw $raw (empty or missing)"; cat /tmp/purge_out.txt || true
-              return 1
-            fi
-            rawhash=$(sha256sum /tmp/raw_file | awk '{print $1}')
-            echo "rawhash=$rawhash (size=$(wc -c < /tmp/raw_file) bytes)"
-
-            # Poll CDN until content matches raw or timeout
-            attempts=0
-            max=24   # up to 24 attempts * 5s = ~2 minutes
-            while [ $attempts -lt $max ]; do
-              attempts=$((attempts+1))
-              echo "Attempt $attempts: fetching CDN copy ($cdn)..."
-              curl -sS "$cdn" -o /tmp/cdn_file || true
-              if [ -s /tmp/cdn_file ]; then
-                cdnhash=$(sha256sum /tmp/cdn_file | awk '{print $1}')
-                echo "cdnhash=$cdnhash (size=$(wc -c < /tmp/cdn_file) bytes)"
-                if [ "$cdnhash" = "$rawhash" ]; then
-                  echo "CDN content matches raw GitHub for $relpath"
-                  return 0
-                else
-                  echo "Mismatch on attempt $attempts; showing head of both files to diagnose..."
-                  echo "---- raw head ----"
-                  head -c 400 /tmp/raw_file || true
-                  echo "---- cdn head ----"
-                  head -c 400 /tmp/cdn_file || true
-                  echo "Mismatch; waiting 5s..."
-                fi
-              else
-                echo "CDN returned empty on attempt $attempts; waiting 5s..."
-              fi
-              sleep 5
-            done
-            echo "Timed out waiting for CDN to update $relpath after $max attempts"
-            echo "Final purge response body:"
-            cat /tmp/purge_out.txt || true
-            echo "Raw file size: $(wc -c < /tmp/raw_file || true)"
-            echo "CDN file size: $(wc -c < /tmp/cdn_file || true)"
-            return 2
-          }
-
-          # Iterate only over changed paths (newline separated)
-          IFS=$'\n'
-          rc=0
-          for f in $changed; do
-            if [[ $f == styles/* || $f == scripts/* ]]; then
-              echo "Processing: $f"
-              verify_and_purge "$f" || rc=$?
-            else
-              echo "Skipping unchanged path: $f"
-            fi
-          done
-          if [ $rc -ne 0 ]; then
-            echo "One or more purges failed or timed out. Failing job to notify operator."
-            exit $rc
-          fi
-
-      - name: Update version.txt and push (or open PR)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          NEWVER="${{ github.sha }}"
-          echo "Updating version.txt to $NEWVER"
-          echo "$NEWVER" > version.txt
-          git config user.email "actions@github.com"
-          git config user.name "github-actions[bot]"
-          git add version.txt
-          if git diff --staged --quiet; then
-            echo "version.txt unchanged; nothing to commit"
-            exit 0
-          fi
-          git commit -m "ci: update version to $NEWVER"
-
-          echo "Trying to push version.txt to main..."
-          if git push origin HEAD:main; then
-            echo "Pushed version.txt directly to main."
-            exit 0
-          else
-            echo "Direct push failed (likely branch protection). Creating branch and PR..."
-            BR="ci/update-version-${NEWVER::7}"
-            git push --set-upstream origin HEAD:"$BR"
-            echo "Branch pushed: $BR"
-
-            API_URL="https://api.github.com/repos/${{ github.repository }}/pulls"
-            PR_TITLE="ci: update version to ${NEWVER}"
-            PR_BODY="Automated update of version.txt to ${NEWVER} after CDN purge/verify."
-            DATA=$(printf '{"title":"%s","head":"%s","base":"%s","body":"%s"}' "$PR_TITLE" "$BR" "main" "$PR_BODY")
-            resp=$(curl -sS -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" "$API_URL" -d "$DATA")
-            pr_url=$(echo "$resp" | python3 -c "import sys,json;print(json.load(sys.stdin).get('html_url',''))")
-            if [ -z "$pr_url" ]; then
-              echo "Failed to create PR. Response:"
-              echo "$resp"
-              exit 1
-            else
-              echo "PR created: $pr_url"
-            fi
-          fi
+        run: echo "changed=$(git diff --name-only HEAD~1 HEAD)" >> $GITHUB_OUTPUT
+      - name: Wait
+        run: sleep 10
+      - name: Purge CSS
+        if: contains(steps.changes.outputs.changed, 'styles/khmerVocabularyStyles.css')
+        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/styles/khmerVocabularyStyles.css"
+      - name: Purge JS
+        if: contains(steps.changes.outputs.changed, 'scripts/khmerVocabularyScripts.js')
+        run: curl -s "https://purge.jsdelivr.net/gh/Ion-o-koji/Miscellaneous@main/scripts/khmerVocabularyScripts.js"
