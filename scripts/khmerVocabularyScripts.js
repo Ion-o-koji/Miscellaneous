@@ -33,6 +33,11 @@
       '(<strong>v8.6</strong>) has been replaced. Download the new file from the ' +
       'link below to keep using Khmer Vocabulary.' +
       '</p>' +
+      '<p class="hero-sub">' +
+      'To avoid problmes ' +
+      '<br>' +
+      '<strong>Delete your original file before downloading.<strong>' +
+      '</p>' +
       '<a class="dl-btn" href="' + DOWNLOAD_URL + '" target="_blank" rel="noopener noreferrer">' +
       'Download Latest Version' +
       '</a>' +
